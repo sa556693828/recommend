@@ -24,6 +24,12 @@ const BookRecommendation = () => {
   const [advice, setAdvice] = useState<string>("");
   const [books, setBooks] = useState<RecommendationResponse["books"]>([]);
 
+  const PROMPT_SUGGESTIONS = [
+    { id: 1, text: "幫我產生10本推薦書籍" },
+    { id: 2, text: "請根據我提供的促銷書單，多提供給用戶我促銷的書籍" },
+    { id: 3, text: "告訴用戶推薦原因時，請多提供一些書籍的背景知識" },
+  ];
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -31,6 +37,9 @@ const BookRecommendation = () => {
     }
   };
 
+  const handlePromptSelect = (selectedPrompt: string) => {
+    setPrompt(selectedPrompt);
+  };
   const handlePromptChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPrompt(e.target.value);
   };
@@ -169,7 +178,7 @@ const BookRecommendation = () => {
                   value={prompt}
                   onChange={handlePromptChange}
                   placeholder="增強 prompt（選填）"
-                  className="flex-1 px-4 py-2 rounded-md border border-[#E8DFC9] focus:outline-none focus:ring-2 focus:ring-[#89B9DB]/20 focus:border-[#89B9DB] bg-white"
+                  className="flex-1 px-4 py-2 rounded-md border text-black border-[#E8DFC9] focus:outline-none focus:ring-2 focus:ring-[#89B9DB]/20 focus:border-[#89B9DB] bg-white"
                 />
                 <label className="px-4 py-2 bg-[#479bd7] hover:bg-[#5d9bc7] text-white rounded-md cursor-pointer transition-colors duration-200">
                   上傳檔案
@@ -186,6 +195,18 @@ const BookRecommendation = () => {
                   已選擇檔案: {promptFile.name}
                 </div>
               )}
+              <div className="flex flex-wrap gap-2">
+                {PROMPT_SUGGESTIONS.map((suggestion) => (
+                  <button
+                    key={suggestion.id}
+                    type="button"
+                    onClick={() => handlePromptSelect(suggestion.text)}
+                    className="px-3 py-1.5 text-sm bg-white hover:bg-[#F8F3E6] text-[#6B7C8C] rounded-md border border-[#E8DFC9] transition-colors duration-200"
+                  >
+                    {suggestion.text}
+                  </button>
+                ))}
+              </div>
             </div>
             <button
               type="submit"
