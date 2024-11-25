@@ -21,7 +21,7 @@ const Header = () => {
             >
               首頁
             </Link>
-            <Link
+            {/* <Link
               href="/recommendations"
               className="text-[#6B7C8C] hover:text-[#479bd7] px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
             >
@@ -32,7 +32,7 @@ const Header = () => {
               className="text-[#6B7C8C] hover:text-[#479bd7] px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
             >
               數據分析
-            </Link>
+            </Link> */}
           </nav>
         </div>
       </div>

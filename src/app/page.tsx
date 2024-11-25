@@ -2,6 +2,8 @@
 import Loading from "@/components/Loading";
 import React, { useEffect, useState } from "react";
 import Markdown from "react-markdown";
+import { Table } from "antd";
+import type { ColumnsType, TableProps } from "antd/es/table";
 
 interface RecommendationResponse {
   advice: string;
@@ -12,6 +14,27 @@ interface RecommendationResponse {
     reason: string;
   }[];
 }
+interface KeyObject {
+  name: string;
+  w: number;
+}
+
+interface CartItem {
+  book_id: string;
+  book_title: string;
+  price: number;
+  quantity: number;
+}
+
+interface OrderItem {
+  order_id: string;
+  book_id: string;
+  book_title: string;
+  price: number;
+  order_date: string;
+  status: string;
+}
+
 //TODO:交易數據、收藏、分析，寫了一個癮琴去分析他的東西，
 //TODO:從歷史數據or等等分析他的行為
 //TODO:趨勢的prompting，編輯推薦的書（上傳買斷的書
@@ -19,7 +42,7 @@ interface RecommendationResponse {
 //TODO:比例
 interface FileState {
   bestseller?: File;
-  purchased?: File;
+  buyoff?: File;
   trending?: File;
 }
 
@@ -33,7 +56,70 @@ const BookRecommendation = () => {
   const [advice, setAdvice] = useState<string>("");
   const [books, setBooks] = useState<RecommendationResponse["books"]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<FileState>({});
+  const [userCart, setUserCart] = useState<any>(null);
+  const [userOrders, setUserOrders] = useState<any>(null);
 
+  const keyConfig: { [key: string]: KeyObject } = {
+    id: { name: "編號", w: 0 },
+    user_id: { name: "ID", w: 100 },
+    order_id: { name: "訂單ID", w: 100 },
+    book_id: { name: "書籍ID", w: 100 },
+    book_price: { name: "價格", w: 100 },
+    Amount: { name: "數量", w: 100 },
+    created_time: { name: "訂單日期", w: 100 },
+    update_time: { name: "更新時間", w: 100 },
+    book_title: { name: "書名", w: 100 },
+  };
+  const orderKeyArray = [
+    "user_id",
+    "order_id",
+    "book_title",
+    "book_id",
+    "book_price",
+    "Amount",
+    "created_time",
+  ];
+  const cartKeyArray = ["user_id", "book_id", "update_time"];
+
+  const orderColumns: TableProps<any>["columns"] = orderKeyArray.map((key) => {
+    return {
+      title: keyConfig[key].name,
+      dataIndex: key,
+      key: key,
+      ellipsis: true,
+      width: keyConfig[key].w,
+      className: "text-base",
+      render: (text, record) => {
+        if (key === "book_title") {
+          const bookName = getBookName(record.book_id);
+          return bookName;
+        }
+        return text ? text : "-";
+      },
+    };
+  });
+
+  const cartColumns: TableProps<any>["columns"] = cartKeyArray.map((key) => {
+    return {
+      title: keyConfig[key].name,
+      dataIndex: key,
+      key: key,
+    };
+  });
+
+  const getBookName = async (book_id: string) => {
+    try {
+      const response = await fetch(`/api/books_data?book_id=${book_id}`);
+      const data = await response.json();
+      if (data.success) {
+        return data.books[0].book_title;
+      } else {
+        return "";
+      }
+    } catch (error) {
+      return "";
+    }
+  };
   const handleFileChange =
     (fileType: keyof FileState) => (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
@@ -53,9 +139,27 @@ const BookRecommendation = () => {
   };
 
   const PROMPT_SUGGESTIONS = [
-    { id: 1, text: "幫我產生10本推薦書籍" },
-    { id: 2, text: "請根據我提供的促銷書單，多提供給用戶我促銷的書籍" },
-    { id: 3, text: "告訴用戶推薦原因時，請多提供一些書籍的背景知識" },
+    { id: 1, text: "經驗見解的書籍，幫助拓展用戶的視野。" },
+    {
+      id: 2,
+      text: "推薦能挑戰用戶平常閱讀喜好的書籍，引入新類型或非傳統的敘事方式。",
+    },
+    {
+      id: 3,
+      text: "推薦深入探討複雜理念、理論或哲學的書籍，鼓勵用戶進行深度思考與反省。",
+    },
+    {
+      id: 4,
+      text: "推薦能深入描繪情感波折或角色成長的書籍，特別適合正在經歷分手的用戶。",
+    },
+    {
+      id: 5,
+      text: "推薦探討台灣是否應向美國支付保護費這一有爭議議題的書籍，提升用戶對此問題的認識與思考。",
+    },
+    {
+      id: 6,
+      text: "推薦能在用戶特定關注領域中激發自我提升、正念或個人轉變的書籍。",
+    },
   ];
 
   const handlePromptSelect = (selectedPrompt: string) => {
@@ -90,6 +194,22 @@ const BookRecommendation = () => {
     getAllUserIds().then((userIds) => setUserIds(userIds));
   }, []);
 
+  const getUserCartAndOrders = async (userId: string) => {
+    try {
+      const cart = await fetch(`/api/user_shoppingCart?user_id=${userId}`);
+      const orders = await fetch(`/api/user_orders?user_id=${userId}`);
+      if (!cart.ok || !orders.ok) {
+        throw new Error("請求失敗");
+      }
+      const cartData = await cart.json();
+      const ordersData = await orders.json();
+      setUserCart(cartData);
+      setUserOrders(ordersData);
+    } catch (error) {
+      console.error("獲取用戶購物車和訂單時發生錯誤:", error);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
@@ -97,9 +217,8 @@ const BookRecommendation = () => {
     const env = process.env.NODE_ENV;
     const baseUrl =
       env === "development"
-        ? "http://54.238.1.161:9001"
-        : `${process.env.NEXT_PUBLIC_NGROK_URL}/demo`;
-
+        ? "http://54.238.1.161:9000"
+        : `${process.env.NEXT_PUBLIC_NGROK_URL}`;
     try {
       const formData = new FormData();
 
@@ -110,6 +229,7 @@ const BookRecommendation = () => {
           }
         });
       }
+      getUserCartAndOrders(userId);
       formData.append("user", userId);
       if (prompt) {
         formData.append("prompt", prompt);
@@ -179,9 +299,9 @@ const BookRecommendation = () => {
                     />
                   </div>
                   <div className="max-h-60 overflow-y-auto">
-                    {filteredUserIds.map((id) => (
+                    {filteredUserIds.map((id, index) => (
                       <button
-                        key={id}
+                        key={index}
                         type="button"
                         onClick={() => handleUserSelect(id)}
                         className="w-full px-4 py-2 text-left hover:bg-[#F8F3E6] focus:bg-[#F8F3E6] focus:outline-none"
@@ -242,12 +362,12 @@ const BookRecommendation = () => {
                     </div>
                   )}
 
-                  {!uploadedFiles.purchased ? (
+                  {!uploadedFiles.buyoff ? (
                     <label className="px-4 py-2 bg-[#479bd7] hover:bg-[#5d9bc7] text-white rounded-md cursor-pointer transition-colors duration-200">
                       上傳 tazze 買斷書籍
                       <input
                         type="file"
-                        onChange={handleFileChange("purchased")}
+                        onChange={handleFileChange("buyoff")}
                         className="hidden"
                         accept=".csv"
                       />
@@ -255,10 +375,10 @@ const BookRecommendation = () => {
                   ) : (
                     <div className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-md">
                       <span className="truncate max-w-[150px]">
-                        {uploadedFiles.purchased.name}
+                        {uploadedFiles.buyoff.name}
                       </span>
                       <button
-                        onClick={handleFileDelete("purchased")}
+                        onClick={handleFileDelete("buyoff")}
                         className="ml-2 hover:text-red-200"
                       >
                         ✕
@@ -311,10 +431,50 @@ const BookRecommendation = () => {
             </button>
           </form>
         </div>
+        {/* <button onClick={() => getUserCartAndOrders(userId)}>
+          getUserCartAndOrders
+        </button> */}
+
+        {/* <div className="bg-[#FDF9F0] rounded-lg shadow-sm border border-[#E8DFC9] p-6 mb-4">
+          <div className="prose prose-sm max-w-none">
+            <h2 className="text-lg font-medium text-[#4A5B6B] mb-3">
+              用戶數據
+            </h2> */}
+        {/* {userCart && (
+              <>
+                <h3 className="text-md font-medium text-[#4A5B6B] mb-2">
+                  購物車
+                </h3>
+                <Table
+                  columns={cartColumns}
+                  dataSource={userCart.items}
+                  rowKey="update_time"
+                  pagination={false}
+                  className="mb-6"
+                />
+              </>
+            )}
+
+            {userOrders && (
+              <>
+                <h3 className="text-md font-medium text-[#4A5B6B] mb-2">
+                  訂單歷史
+                </h3>
+                <Table
+                  columns={orderColumns}
+                  dataSource={userOrders.orders}
+                  rowKey="created_time"
+                  pagination={{ pageSize: 5 }}
+                />
+              </>
+            )} */}
+        {/* </div>
+        </div> */}
+
         <div className="bg-[#FDF9F0] rounded-lg shadow-sm border border-[#E8DFC9] p-6 mb-4">
           <div className="prose prose-sm max-w-none">
             <h2 className="text-lg font-medium text-[#4A5B6B] mb-3">
-              AI生成式偏好模式設計
+              AI 生成式偏好模型
             </h2>
             {advice !== "" && (
               <Markdown className="text-[#6B7C8C] leading-relaxed">
@@ -327,24 +487,51 @@ const BookRecommendation = () => {
         {loading ? (
           <Loading />
         ) : (
-          <div className="space-y-4">
-            {books.map((book) => (
-              <div
-                key={book.book_id}
-                onClick={() => window.open(book.book_url, "_blank")}
-                className="bg-[#FDF9F0] rounded-lg cursor-pointer shadow-sm hover:shadow-md transition-shadow border border-[#E8DFC9] p-6"
-              >
-                <div className="flex gap-6">
-                  <div className="w-32 h-40 bg-[#F0E6D0] rounded-md flex-shrink-0" />
-                  <div className="space-y-2">
-                    <h3 className="text-[#4A5B6B] font-bold text-lg">
-                      {book.book_title}
-                    </h3>
-                    <p className="text-[#6B7C8C] text-base">{book.reason}</p>
-                  </div>
-                </div>
+          <div className="bg-[#d1e0e2] rounded-lg shadow-sm border border-[#E8DFC9] p-6 mb-4">
+            <div className="prose prose-sm max-w-none">
+              <div className="flex justify-between">
+                <h2 className="text-lg font-medium text-[#4A5B6B] mb-3">
+                  AI 個性化書單
+                </h2>
+                <p className="text-[#6B7C8C]">
+                  {new Date().toLocaleDateString()}
+                </p>
               </div>
-            ))}
+
+              <div className="space-y-4">
+                {books.map((book, index) => (
+                  <div
+                    key={index}
+                    onClick={() => window.open(book.book_url, "_blank")}
+                    className="bg-[#FDF9F0] relative rounded-lg cursor-pointer shadow-sm hover:shadow-md transition-shadow border border-[#E8DFC9] p-6"
+                  >
+                    <div className="flex gap-6">
+                      {/* <div className="w-32 h-40 bg-[#F0E6D0] rounded-md flex-shrink-0" /> */}
+                      <div className="space-y-2">
+                        <h3 className="text-[#4A5B6B] font-bold text-lg">
+                          {book.book_title}
+                        </h3>
+                        <p className="text-[#6B7C8C] text-base">
+                          {book.reason}
+                        </p>
+                        <a
+                          href={book.book_url}
+                          className="text-[#479bd7] hover:text-[#5d9bc7]"
+                          target="_blank"
+                        >
+                          {book.book_url}
+                        </a>
+                      </div>
+                    </div>
+                    {/* <div className="absolute bottom-4 right-4">
+                      <button className="text-xs text-[#6B7C8C]">
+                        {new Date().toLocaleDateString()}
+                      </button>
+                    </div> */}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         )}
       </div>
