@@ -12,6 +12,16 @@ interface RecommendationResponse {
     reason: string;
   }[];
 }
+//TODO:交易數據、收藏、分析，寫了一個癮琴去分析他的東西，
+//TODO:從歷史數據or等等分析他的行為
+//TODO:趨勢的prompting，編輯推薦的書（上傳買斷的書
+//TODO:暢銷排行榜
+//TODO:比例
+interface FileState {
+  bestseller?: File;
+  purchased?: File;
+  trending?: File;
+}
 
 const BookRecommendation = () => {
   const [userId, setUserId] = useState("");
@@ -20,22 +30,33 @@ const BookRecommendation = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
   const [prompt, setPrompt] = useState("");
-  const [promptFile, setPromptFile] = useState<File | null>(null);
   const [advice, setAdvice] = useState<string>("");
   const [books, setBooks] = useState<RecommendationResponse["books"]>([]);
+  const [uploadedFiles, setUploadedFiles] = useState<FileState>({});
+
+  const handleFileChange =
+    (fileType: keyof FileState) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        setUploadedFiles((prev) => ({
+          ...prev,
+          [fileType]: file,
+        }));
+      }
+    };
+  const handleFileDelete = (fileType: keyof FileState) => () => {
+    setUploadedFiles((prev) => {
+      const newFiles = { ...prev };
+      delete newFiles[fileType];
+      return newFiles;
+    });
+  };
 
   const PROMPT_SUGGESTIONS = [
     { id: 1, text: "幫我產生10本推薦書籍" },
     { id: 2, text: "請根據我提供的促銷書單，多提供給用戶我促銷的書籍" },
     { id: 3, text: "告訴用戶推薦原因時，請多提供一些書籍的背景知識" },
   ];
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setPromptFile(file);
-    }
-  };
 
   const handlePromptSelect = (selectedPrompt: string) => {
     setPrompt(selectedPrompt);
@@ -76,21 +97,23 @@ const BookRecommendation = () => {
     const env = process.env.NODE_ENV;
     const baseUrl =
       env === "development"
-        ? "http://54.238.1.161:9000"
-        : process.env.NEXT_PUBLIC_NGROK_URL;
+        ? "http://54.238.1.161:9001"
+        : `${process.env.NEXT_PUBLIC_NGROK_URL}/demo`;
 
     try {
       const formData = new FormData();
 
-      if (promptFile) {
-        // 逐個添加數據並檢查
-        formData.append("file", promptFile);
+      if (uploadedFiles) {
+        Object.entries(uploadedFiles).forEach(([key, file]) => {
+          if (file) {
+            formData.append(key, file);
+          }
+        });
       }
       formData.append("user", userId);
       if (prompt) {
         formData.append("prompt", prompt);
       }
-
       const response = await fetch(`${baseUrl}/recommend`, {
         method: "POST",
         body: formData,
@@ -180,21 +203,7 @@ const BookRecommendation = () => {
                   placeholder="增強 prompt（選填）"
                   className="flex-1 px-4 py-2 rounded-md border text-black border-[#E8DFC9] focus:outline-none focus:ring-2 focus:ring-[#89B9DB]/20 focus:border-[#89B9DB] bg-white"
                 />
-                <label className="px-4 py-2 bg-[#479bd7] hover:bg-[#5d9bc7] text-white rounded-md cursor-pointer transition-colors duration-200">
-                  上傳檔案
-                  <input
-                    type="file"
-                    onChange={handleFileChange}
-                    className="hidden"
-                    accept=".csv"
-                  />
-                </label>
               </div>
-              {promptFile && (
-                <div className="text-sm text-[#6B7C8C]">
-                  已選擇檔案: {promptFile.name}
-                </div>
-              )}
               <div className="flex flex-wrap gap-2">
                 {PROMPT_SUGGESTIONS.map((suggestion) => (
                   <button
@@ -207,11 +216,96 @@ const BookRecommendation = () => {
                   </button>
                 ))}
               </div>
+              <div className="space-y-2">
+                <div className="flex gap-2">
+                  {!uploadedFiles.bestseller ? (
+                    <label className="px-4 py-2 bg-[#479bd7] hover:bg-[#5d9bc7] text-white rounded-md cursor-pointer transition-colors duration-200">
+                      上傳 tazze 暢銷榜
+                      <input
+                        type="file"
+                        onChange={handleFileChange("bestseller")}
+                        className="hidden"
+                        accept=".csv"
+                      />
+                    </label>
+                  ) : (
+                    <div className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-md">
+                      <span className="truncate max-w-[150px]">
+                        {uploadedFiles.bestseller.name}
+                      </span>
+                      <button
+                        onClick={handleFileDelete("bestseller")}
+                        className="ml-2 hover:text-red-200"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
+
+                  {!uploadedFiles.purchased ? (
+                    <label className="px-4 py-2 bg-[#479bd7] hover:bg-[#5d9bc7] text-white rounded-md cursor-pointer transition-colors duration-200">
+                      上傳 tazze 買斷書籍
+                      <input
+                        type="file"
+                        onChange={handleFileChange("purchased")}
+                        className="hidden"
+                        accept=".csv"
+                      />
+                    </label>
+                  ) : (
+                    <div className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-md">
+                      <span className="truncate max-w-[150px]">
+                        {uploadedFiles.purchased.name}
+                      </span>
+                      <button
+                        onClick={handleFileDelete("purchased")}
+                        className="ml-2 hover:text-red-200"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
+
+                  {!uploadedFiles.trending ? (
+                    <label className="px-4 py-2 bg-[#479bd7] hover:bg-[#5d9bc7] text-white rounded-md cursor-pointer transition-colors duration-200">
+                      上傳 social media 趨勢書單
+                      <input
+                        type="file"
+                        onChange={handleFileChange("trending")}
+                        className="hidden"
+                        accept=".csv"
+                      />
+                    </label>
+                  ) : (
+                    <div className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-md">
+                      <span className="truncate max-w-[150px]">
+                        {uploadedFiles.trending.name}
+                      </span>
+                      <button
+                        onClick={handleFileDelete("trending")}
+                        className="ml-2 hover:text-red-200"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+              {/* 
+              {promptFile && (
+                <div className="text-sm text-[#6B7C8C]">
+                  已選擇檔案: {promptFile.name}
+                </div>
+              )} */}
             </div>
             <button
               type="submit"
               disabled={loading || !userId}
-              className="px-6 py-2 bg-[#479bd7] hover:bg-[#5d9bc7] text-white rounded-md transition-colors duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
+              className={`px-6 py-2 rounded-md transition-colors duration-200 ${
+                loading || !userId
+                  ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                  : "bg-[#9147d7] hover:bg-[#bb5dc7] text-white"
+              }`}
             >
               {loading ? "載入中..." : "產生推薦"}
             </button>
@@ -220,7 +314,7 @@ const BookRecommendation = () => {
         <div className="bg-[#FDF9F0] rounded-lg shadow-sm border border-[#E8DFC9] p-6 mb-4">
           <div className="prose prose-sm max-w-none">
             <h2 className="text-lg font-medium text-[#4A5B6B] mb-3">
-              推薦摘要
+              AI生成式偏好模式設計
             </h2>
             {advice !== "" && (
               <Markdown className="text-[#6B7C8C] leading-relaxed">
