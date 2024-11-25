@@ -34,11 +34,11 @@ interface RecommendationResponse {
 //   status: string;
 // }
 
-//TODO:交易數據、收藏、分析，寫了一個癮琴去分析他的東西，
-//TODO:從歷史數據or等等分析他的行為
-//TODO:趨勢的prompting，編輯推薦的書（上傳買斷的書
-//TODO:暢銷排行榜
-//TODO:比例
+//TODO: 交易數據、收藏、分析，寫了一個癮琴去分析他的東西，
+//TODO: 從歷史數據or等等分析他的行為
+//TODO: 趨勢的prompting，編輯推薦的書（上傳買斷的書
+//TODO: 暢銷排行榜
+//TODO: 比例
 interface FileState {
   bestseller?: File;
   buyoff?: File;
@@ -158,6 +158,14 @@ const BookRecommendation = () => {
     {
       id: 6,
       text: "推薦能在用戶特定關注領域中激發自我提升、正念或個人轉變的書籍。",
+    },
+    {
+      id: 7,
+      text: "確保40%的推薦為當前暢銷書，60%為根據使用者獨特興趣和閱讀歷史的個人化選擇",
+    },
+    {
+      id: 8,
+      text: "將30%的推薦分配給使用者經常閱讀的類型，70%分配給新類型或較不熟悉的類型，以鼓勵探索",
     },
   ];
 
