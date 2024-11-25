@@ -2,8 +2,7 @@
 import Loading from "@/components/Loading";
 import React, { useEffect, useState } from "react";
 import Markdown from "react-markdown";
-import { Table } from "antd";
-import type { ColumnsType, TableProps } from "antd/es/table";
+// import type { TableProps } from "antd/es/table";
 
 interface RecommendationResponse {
   advice: string;
@@ -14,26 +13,26 @@ interface RecommendationResponse {
     reason: string;
   }[];
 }
-interface KeyObject {
-  name: string;
-  w: number;
-}
+// interface KeyObject {
+//   name: string;
+//   w: number;
+// }
 
-interface CartItem {
-  book_id: string;
-  book_title: string;
-  price: number;
-  quantity: number;
-}
+// interface CartItem {
+//   book_id: string;
+//   book_title: string;
+//   price: number;
+//   quantity: number;
+// }
 
-interface OrderItem {
-  order_id: string;
-  book_id: string;
-  book_title: string;
-  price: number;
-  order_date: string;
-  status: string;
-}
+// interface OrderItem {
+//   order_id: string;
+//   book_id: string;
+//   book_title: string;
+//   price: number;
+//   order_date: string;
+//   status: string;
+// }
 
 //TODO:交易數據、收藏、分析，寫了一個癮琴去分析他的東西，
 //TODO:從歷史數據or等等分析他的行為
@@ -56,70 +55,70 @@ const BookRecommendation = () => {
   const [advice, setAdvice] = useState<string>("");
   const [books, setBooks] = useState<RecommendationResponse["books"]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<FileState>({});
-  const [userCart, setUserCart] = useState<any>(null);
-  const [userOrders, setUserOrders] = useState<any>(null);
+  // const [userCart, setUserCart] = useState<any>(null);
+  // const [userOrders, setUserOrders] = useState<any>(null);
 
-  const keyConfig: { [key: string]: KeyObject } = {
-    id: { name: "編號", w: 0 },
-    user_id: { name: "ID", w: 100 },
-    order_id: { name: "訂單ID", w: 100 },
-    book_id: { name: "書籍ID", w: 100 },
-    book_price: { name: "價格", w: 100 },
-    Amount: { name: "數量", w: 100 },
-    created_time: { name: "訂單日期", w: 100 },
-    update_time: { name: "更新時間", w: 100 },
-    book_title: { name: "書名", w: 100 },
-  };
-  const orderKeyArray = [
-    "user_id",
-    "order_id",
-    "book_title",
-    "book_id",
-    "book_price",
-    "Amount",
-    "created_time",
-  ];
-  const cartKeyArray = ["user_id", "book_id", "update_time"];
+  // const keyConfig: { [key: string]: KeyObject } = {
+  //   id: { name: "編號", w: 0 },
+  //   user_id: { name: "ID", w: 100 },
+  //   order_id: { name: "訂單ID", w: 100 },
+  //   book_id: { name: "書籍ID", w: 100 },
+  //   book_price: { name: "價格", w: 100 },
+  //   Amount: { name: "數量", w: 100 },
+  //   created_time: { name: "訂單日期", w: 100 },
+  //   update_time: { name: "更新時間", w: 100 },
+  //   book_title: { name: "書名", w: 100 },
+  // };
+  // const orderKeyArray = [
+  //   "user_id",
+  //   "order_id",
+  //   "book_title",
+  //   "book_id",
+  //   "book_price",
+  //   "Amount",
+  //   "created_time",
+  // ];
+  // const cartKeyArray = ["user_id", "book_id", "update_time"];
 
-  const orderColumns: TableProps<any>["columns"] = orderKeyArray.map((key) => {
-    return {
-      title: keyConfig[key].name,
-      dataIndex: key,
-      key: key,
-      ellipsis: true,
-      width: keyConfig[key].w,
-      className: "text-base",
-      render: (text, record) => {
-        if (key === "book_title") {
-          const bookName = getBookName(record.book_id);
-          return bookName;
-        }
-        return text ? text : "-";
-      },
-    };
-  });
+  // const orderColumns: TableProps<any>["columns"] = orderKeyArray.map((key) => {
+  //   return {
+  //     title: keyConfig[key].name,
+  //     dataIndex: key,
+  //     key: key,
+  //     ellipsis: true,
+  //     width: keyConfig[key].w,
+  //     className: "text-base",
+  //     render: (text, record) => {
+  //       if (key === "book_title") {
+  //         const bookName = getBookName(record.book_id);
+  //         return bookName;
+  //       }
+  //       return text ? text : "-";
+  //     },
+  //   };
+  // });
 
-  const cartColumns: TableProps<any>["columns"] = cartKeyArray.map((key) => {
-    return {
-      title: keyConfig[key].name,
-      dataIndex: key,
-      key: key,
-    };
-  });
+  // const cartColumns: TableProps<any>["columns"] = cartKeyArray.map((key) => {
+  //   return {
+  //     title: keyConfig[key].name,
+  //     dataIndex: key,
+  //     key: key,
+  //   };
+  // });
 
-  const getBookName = async (book_id: string) => {
-    try {
-      const response = await fetch(`/api/books_data?book_id=${book_id}`);
-      const data = await response.json();
-      if (data.success) {
-        return data.books[0].book_title;
-      } else {
-        return "";
-      }
-    } catch (error) {
-      return "";
-    }
-  };
+  // const getBookName = async (book_id: string) => {
+  //   try {
+  //     const response = await fetch(`/api/books_data?book_id=${book_id}`);
+  //     const data = await response.json();
+  //     if (data.success) {
+  //       return data.books[0].book_title;
+  //     } else {
+  //       return "";
+  //     }
+  //   } catch (error) {
+  //     return "";
+  //   }
+  // };
   const handleFileChange =
     (fileType: keyof FileState) => (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
@@ -201,10 +200,10 @@ const BookRecommendation = () => {
       if (!cart.ok || !orders.ok) {
         throw new Error("請求失敗");
       }
-      const cartData = await cart.json();
-      const ordersData = await orders.json();
-      setUserCart(cartData);
-      setUserOrders(ordersData);
+      // const cartData = await cart.json();
+      // const ordersData = await orders.json();
+      // setUserCart(cartData);
+      // setUserOrders(ordersData);
     } catch (error) {
       console.error("獲取用戶購物車和訂單時發生錯誤:", error);
     }
