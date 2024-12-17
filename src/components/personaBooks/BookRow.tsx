@@ -39,9 +39,9 @@ const BookRow = ({ book, updateBookList }: BookRowProps) => {
             }
           }}
         >
-          {book?.book_image ? (
+          {book?.book_id ? (
             <Image
-              src={book.book_image}
+              src={`https://media.taaze.tw/showThumbnail.html?sc=${book.book_id}&height=400&width=310`}
               alt={book.book_title}
               className="w-12 h-16"
               width={44}

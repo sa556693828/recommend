@@ -16,6 +16,14 @@ const nextConfig: NextConfig = {
       },
     },
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "media.taaze.tw",
+      },
+    ],
+  },
 };
 
 export default nextConfig;
