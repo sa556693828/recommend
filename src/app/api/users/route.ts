@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getUserModel } from "@/models/Users";
+import { usersIDs } from "@/constants/userData";
 
 export async function GET(req: NextRequest) {
   try {
@@ -9,7 +10,12 @@ export async function GET(req: NextRequest) {
 
     if (getAllUserIds) {
       const users = await UserModel.find({}, { user_id: 1 });
-
+      if (users.length === 0) {
+        return NextResponse.json({
+          success: true,
+          users: usersIDs,
+        });
+      }
       return NextResponse.json({
         success: true,
         users: users.map((user) => user.user_id),

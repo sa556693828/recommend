@@ -3,13 +3,13 @@ import ChatSection from "@/components/chating/ChatSection";
 import BookList from "@/components/personaBooks/BookList";
 import PersonaSelector from "@/components/personaBooks/PersonaSelector";
 import { useChatHistoryStore } from "@/store/chatHistoryStore";
+import { useAuthStore } from "@/store/useAuthStore";
 import { usePersonaStore } from "@/store/usePersonaStore";
 import { BookData, Message } from "@/types";
 import React, { useCallback, useEffect, useState } from "react";
 
-const Testing = () => {
-  // const { userId } = useAuthStore();
-  const userId = "Abcrobertlau@gmail.com";
+const BookRecommendationClient = () => {
+  const { userId } = useAuthStore();
   const { personaId } = usePersonaStore();
   const { chatHistory, fetchChatHistory } = useChatHistoryStore();
   const [recommendLoading, setRecommendLoading] = useState(false);
@@ -50,7 +50,7 @@ const Testing = () => {
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let buffer = "";
-        setRecommendLoading(false);
+        // setRecommendLoading(false);
         try {
           setIsStreaming(true);
           while (true) {
@@ -242,6 +242,7 @@ const Testing = () => {
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let buffer = "";
+        // setQueryLoading(false);
         try {
           setIsStreaming(true);
           while (true) {
@@ -445,6 +446,8 @@ const Testing = () => {
 
   useEffect(() => {
     if (userId && personaId) {
+      setCurrentBook(null);
+      setCurrentChat(null);
       fetchChatHistory(userId, personaId);
     }
   }, [userId, personaId]);
@@ -481,4 +484,4 @@ const Testing = () => {
   );
 };
 
-export default Testing;
+export default BookRecommendationClient;

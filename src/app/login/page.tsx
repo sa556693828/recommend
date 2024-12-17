@@ -1,3 +1,3 @@
-import Testing from "./index";
+import Login from "./index";
 
-export default Testing;
+export default Login;

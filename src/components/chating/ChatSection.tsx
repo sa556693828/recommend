@@ -3,11 +3,11 @@ import Loading from "@/components/Loading";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Message } from "@/types";
 import { usePersonaStore } from "@/store/usePersonaStore";
-import { IoIosArrowRoundForward } from "react-icons/io";
 import ReactMarkdown from "react-markdown";
 import { personaIconMap } from "@/constants/personaMapping";
 import Image from "next/image";
 import LLMInput from "../Input";
+import PromptList from "./PromptList";
 
 interface ChatSectionProps {
   currentChat?: Message[];
@@ -28,6 +28,7 @@ const ChatSection = ({
   const personaIcon = personaIconMap[personaId];
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
+
   useEffect(() => {
     console.log("isLoading", isLoading);
     console.log("isStreaming", isStreaming);
@@ -117,23 +118,7 @@ const ChatSection = ({
               {message.content}
             </ReactMarkdown>
             {message.prompts && message.prompts.length > 0 && (
-              <div className="flex flex-col gap-2">
-                <p className="text-sm text-black font-bold">繼續問</p>
-                <div className="flex flex-col">
-                  {message.prompts.map((prompt, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center py-3 border-t border-black/30 gap-2"
-                    >
-                      <IoIosArrowRoundForward
-                        size={24}
-                        className="text-black"
-                      />
-                      <p className="text-sm text-black">{prompt}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <PromptList prompts={message.prompts} handleQuery={handleQuery} />
             )}
           </div>
         </div>
@@ -168,23 +153,7 @@ const ChatSection = ({
               {message.content}
             </ReactMarkdown>
             {message.prompts && message.prompts.length > 0 && (
-              <div className="flex flex-col gap-2">
-                <p className="text-sm text-black font-bold">繼續問</p>
-                <div className="flex flex-col">
-                  {message.prompts.map((prompt, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center py-3 border-t border-black/30 gap-2"
-                    >
-                      <IoIosArrowRoundForward
-                        size={24}
-                        className="text-black"
-                      />
-                      <p className="text-sm text-black">{prompt}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <PromptList prompts={message.prompts} handleQuery={handleQuery} />
             )}
           </div>
         </div>

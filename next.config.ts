@@ -1,6 +1,11 @@
 import type { NextConfig } from "next";
 
+// 添加開發環境判斷
+const inDevelopment = process.env.NODE_ENV === "development";
+
 const nextConfig: NextConfig = {
+  // 添加 assetPrefix 配置
+  assetPrefix: inDevelopment ? undefined : "/",
   experimental: {
     turbo: {
       rules: {

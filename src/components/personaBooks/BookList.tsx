@@ -1,8 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { HiDotsHorizontal } from "react-icons/hi";
 import { BookData } from "@/types";
 import { Message } from "@/types";
+import BookRow from "./BookRow";
 
 interface BookListProps {
   chatHistory: Message[];
@@ -12,6 +12,13 @@ interface BookListProps {
 
 const BookList = ({ chatHistory, books, updateBookList }: BookListProps) => {
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+  const ChatHistory_bookList_distinct = [...chatHistory]
+    .reverse()
+    .flatMap((message) => message.book_list || [])
+    .filter(
+      (book, index, self) =>
+        index === self.findIndex((b) => b.book_id === book.book_id)
+    );
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -32,92 +39,13 @@ const BookList = ({ chatHistory, books, updateBookList }: BookListProps) => {
       {books &&
         books.length > 0 &&
         books.map((book, index) => (
-          <div key={index} className="flex flex-col gap-1">
-            <div className="flex gap-4 px-3 py-4 items-center">
-              <div className="w-12 h-16 bg-white"></div>
-              <div className="flex flex-col flex-1 gap-2">
-                <div className="text-white">
-                  {book.book_title?.split("：").map((part, index) => {
-                    if (index === 0) {
-                      return (
-                        <p key={index} className="text-lg font-bold">
-                          {part}：
-                        </p>
-                      );
-                    } else {
-                      return (
-                        <p key={index} className="text-base text-white/30">
-                          {part}
-                        </p>
-                      );
-                    }
-                  })}
-                </div>
-              </div>
-              <div className="flex items-center justify-center">
-                <HiDotsHorizontal className="size-6 text-white" />
-              </div>
-            </div>
-            <div className="w-full h-[1px] bg-white/30"></div>
-          </div>
+          <BookRow key={index} book={book} updateBookList={updateBookList} />
         ))}
       {chatHistory &&
         chatHistory.length > 0 &&
-        chatHistory.map(
-          (message) =>
-            message.book_list &&
-            message.book_list.length > 0 &&
-            message.book_list.map((book, index) => (
-              <div key={index} className="flex flex-col gap-1">
-                <div className="flex gap-4 px-3 py-4 items-center">
-                  <div className="w-12 h-16 bg-white"></div>
-                  <div className="flex flex-col flex-1 gap-2">
-                    <div className="text-white">
-                      {book.book_title?.split("：").map((part, index) => {
-                        if (index === 0) {
-                          return (
-                            <p key={index} className="text-lg font-bold">
-                              {part}：
-                            </p>
-                          );
-                        } else {
-                          return (
-                            <p key={index} className="text-base text-white/30">
-                              {part}
-                            </p>
-                          );
-                        }
-                      })}
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-center relative menu-container">
-                    <HiDotsHorizontal
-                      className="size-6 text-white"
-                      onClick={() =>
-                        setActiveMenuId(
-                          activeMenuId === book.book_id ? null : book.book_id
-                        )
-                      }
-                    />
-                    {activeMenuId === book.book_id && (
-                      <div className="absolute right-0 top-8 bg-gray-700 rounded-lg shadow-lg py-1 min-w-[120px] z-10">
-                        <button
-                          className="w-full px-4 py-2 text-left text-white hover:bg-gray-600"
-                          onClick={() => {
-                            updateBookList(book.book_id);
-                            setActiveMenuId(null);
-                          }}
-                        >
-                          沒興趣
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div className="w-full h-[1px] bg-white/30"></div>
-              </div>
-            ))
-        )}
+        ChatHistory_bookList_distinct.map((book, index) => (
+          <BookRow key={index} book={book} updateBookList={updateBookList} />
+        ))}
     </div>
   );
 };

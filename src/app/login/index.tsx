@@ -1,125 +1,146 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
-import React, { useCallback, useEffect, useState } from "react";
-
-interface Books {
-  book_id: string;
-  book_title: string;
-  book_url: string;
-}
-interface UserHistory {
-  role: string;
-  content: string;
-}
+import { useAuthStore } from "@/store/useAuthStore";
+import { useRouter } from "next/navigation";
+import React, { useEffect, useState, useRef } from "react";
 
 const Login = () => {
+  const router = useRouter();
+  const { login, isLoading } = useAuthStore();
   const [userId, setUserId] = useState("");
+  const [password, setPassword] = useState("");
   const [userIds, setUserIds] = useState<string[]>([]);
   const [isUserListOpen, setIsUserListOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // async function getAllUserIds(): Promise<string[]> {
-  //   try {
-  //     const response = await fetch("/api/users?getAllUserIds=true", {
-  //       method: "GET",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //     });
+  const fetchUserIds = async () => {
+    try {
+      const response = await fetch("/api/users?getAllUserIds=true", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-  //     const data = await response.json();
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
-  //     if (!data.success) {
-  //       console.error("API返回錯誤:", data); // 添加更多錯誤信息
-  //       throw new Error(data.error || data.details || "獲取用戶ID失敗");
-  //     }
+      const data = await response.json();
 
-  //     console.log("獲取到的用戶數據:", data); // 添加成功日誌
-  //     return data.users;
-  //   } catch (error: any) {
-  //     console.error("獲取用戶ID時發生錯誤:", {
-  //       message: error.message,
-  //       stack: error.stack,
-  //       name: error.name,
-  //     });
-  //     throw error;
-  //   }
-  // }
+      if (!data.success) {
+        throw new Error(data.error || data.details || "獲取用戶ID失敗");
+      }
 
-  // // 修改 useEffect 的錯誤處理
-  // useEffect(() => {
-  //   getAllUserIds()
-  //     .then((userIds) => {
-  //       console.log("設置用戶ID列表:", userIds);
-  //       setUserIds(userIds);
-  //     })
-  //     .catch((error) => {
-  //       console.error("設置用戶ID失敗:", error);
-  //     });
-  // }, []);
+      setUserIds(data.users);
+    } catch (error) {
+      console.error("獲取用戶ID錯誤:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserIds();
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsUserListOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   const handleUserSelect = (selectedId: string) => {
     setUserId(selectedId);
     setIsUserListOpen(false);
   };
   const filteredUserIds = userIds.filter((id) =>
-    id.toLowerCase().includes(searchTerm.toLowerCase())
+    id.toLowerCase().includes(userId.toLowerCase())
   );
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const result = await login(userId, password);
+    if (result) {
+      router.push("/");
+    }
+  };
   return (
     <div
-      className="flex justify-center w-full gap-2 p-2 bg-[#e8e8e8]"
+      className="flex justify-center items-center w-full"
       style={{
-        minHeight: "calc(100vh - 60px)",
+        height: "calc(100vh - 52px)",
       }}
     >
-      <div className="flex flex-col items-center justify-center w-full max-w-md p-6 bg-white rounded-lg shadow-md">
-        <h1 className="mb-6 text-2xl font-bold text-gray-800">用戶登入</h1>
-
-        {/* 用戶選擇區域 */}
-        <div className="w-full mb-4">
-          <div className="relative">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white px-4 py-8 flex flex-col gap-8 items-center rounded-lg w-full max-w-sm"
+      >
+        <h1 className="text-xl font-bold text-black">會員登入</h1>
+        <div className="w-full flex flex-col gap-2">
+          <div className="relative" ref={dropdownRef}>
             <input
               type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              value={userId}
+              placeholder="請輸入或選擇用戶 ID"
+              className="w-full h-10 px-4 items-center text-sm flex bg-[#D7D7D7] rounded-md focus:outline-none"
+              onChange={(e) => setUserId(e.target.value)}
               onClick={() => setIsUserListOpen(true)}
-              placeholder="搜尋或選擇用戶ID"
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsUserListOpen(!isUserListOpen);
+              }}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-[#FFFFFF]/60"
+            >
+              ▼
+            </button>
             {isUserListOpen && (
-              <div className="absolute z-10 w-full mt-1 bg-white border rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                {filteredUserIds.map((id) => (
-                  <div
-                    key={id}
-                    onClick={() => handleUserSelect(id)}
-                    className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                  >
-                    {id}
-                  </div>
-                ))}
+              <div className="absolute text-black z-10 max-w-xs top-11 -left-4 bg-white border border-[#E8DFC9] rounded-md shadow-lg">
+                <div className="max-h-60 overflow-y-auto">
+                  {filteredUserIds.map((id, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleUserSelect(id);
+                      }}
+                      className="w-full px-4 py-2 text-left hover:bg-[#F8F3E6] focus:bg-[#F8F3E6] focus:outline-none"
+                    >
+                      {id}
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
           </div>
-        </div>
 
-        {/* 登入按鈕 */}
-        <button
-          onClick={() => {
-            if (userId) {
-              // 這裡可以添加登入邏輯
-              console.log("登入用戶:", userId);
-            }
-          }}
-          disabled={!userId}
-          className={`w-full py-2 text-white rounded-lg ${
-            userId
-              ? "bg-blue-500 hover:bg-blue-600"
-              : "bg-gray-300 cursor-not-allowed"
-          }`}
-        >
-          登入
-        </button>
-      </div>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="密碼"
+            className="w-full h-10 px-4 items-center text-sm flex bg-[#D7D7D7] rounded-md focus:outline-none"
+            required
+          />
+          <button
+            type="submit"
+            className="w-full font-bold py-4 mt-2 text-white text-base bg-black rounded-md hover:bg-black/80 focus:outline-none"
+          >
+            {isLoading ? "登入中..." : "會員登入"}
+          </button>
+        </div>
+      </form>
     </div>
   );
 };
