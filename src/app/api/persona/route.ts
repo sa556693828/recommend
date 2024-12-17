@@ -1,18 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUserModel } from "@/models/Users";
+import { getPersonaModel } from "@/models/Persona";
 
 export async function GET(req: NextRequest) {
   try {
-    const UserModel = await getUserModel();
+    const PersonaModel = await getPersonaModel();
     const { searchParams } = new URL(req.url);
-    const getAllUserIds = searchParams.get("getAllUserIds");
+    const getAllPersona = searchParams.get("getAllPersona");
 
-    if (getAllUserIds) {
-      const users = await UserModel.find({}, { user_id: 1 });
-
+    if (getAllPersona) {
+      const personas = await PersonaModel.find({});
       return NextResponse.json({
         success: true,
-        users: users.map((user) => user.user_id),
+        personas: personas,
       });
     }
 
@@ -25,7 +24,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: "獲取users data失敗",
+        error: "獲取persona資料失敗",
         details: error instanceof Error ? error.message : "未知錯誤",
       },
       { status: 500 }

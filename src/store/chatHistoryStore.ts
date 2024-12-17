@@ -1,27 +1,24 @@
+import { Message } from "@/types";
 import { create } from "zustand";
 
-interface ChatHistory {
-  _id: string;
-  book_link: string;
-  SessionId: string;
-}
-
 interface ChatHistoryState {
-  chatHistory: ChatHistory[];
+  chatHistory: Message[] | null;
   isLoading: boolean;
-  fetchChatHistory: (sessionId: string) => Promise<void>;
+  fetchChatHistory: (userId: string, personaId: string) => Promise<void>;
 }
 
 export const useChatHistoryStore = create<ChatHistoryState>((set) => ({
-  chatHistory: [],
+  chatHistory: null,
   isLoading: false,
-  fetchChatHistory: async (sessionId: string) => {
+  fetchChatHistory: async (userId: string, personaId: string) => {
     try {
       set({ isLoading: true });
-      const response = await fetch(`/api/chat?sessionId=${sessionId}`);
+      const response = await fetch(
+        `/api/chatHistory?userId=${userId}&personaId=${personaId}`
+      );
       const data = await response.json();
       if (data.success) {
-        set({ chatHistory: data.chatHistory || [] });
+        set({ chatHistory: data.userHistories || [] });
       }
     } catch (error) {
       console.error("Error fetching chat history:", error);

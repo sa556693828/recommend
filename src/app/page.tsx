@@ -55,6 +55,12 @@ const BookRecommendation = () => {
   const [advice, setAdvice] = useState<string>("");
   const [books, setBooks] = useState<RecommendationResponse["books"]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<FileState>({});
+  const [currentDate, setCurrentDate] = useState("");
+
+  useEffect(() => {
+    setCurrentDate(new Date().toLocaleDateString());
+  }, []);
+
   // const [userCart, setUserCart] = useState<any>(null);
   // const [userOrders, setUserOrders] = useState<any>(null);
 
@@ -268,7 +274,7 @@ const BookRecommendation = () => {
     id.toLowerCase().includes(searchTerm.toLowerCase())
   );
   return (
-    <div className="min-h-screen bg-[#F8F3E6]">
+    <div className="min-h-screen bg-[#e8e8e8]">
       <div className="max-w-4xl mx-auto p-6">
         {/* 輸入表單區域 */}
         <div className="bg-[#FDF9F0] rounded-lg shadow-sm border border-[#E8DFC9] p-6 mb-4">
@@ -461,7 +467,6 @@ const BookRecommendation = () => {
                 />
               </>
             )}
-
             {userOrders && (
               <>
                 <h3 className="text-md font-medium text-[#4A5B6B] mb-2">
@@ -484,7 +489,7 @@ const BookRecommendation = () => {
               AI 生成式偏好模型
             </h2>
             {advice !== "" && (
-              <Markdown className="text-[#6B7C8C] leading-relaxed">
+              <Markdown className="text-[#44494e] leading-relaxed">
                 {advice}
               </Markdown>
             )}
@@ -500,9 +505,7 @@ const BookRecommendation = () => {
                 <h2 className="text-lg font-medium text-[#4A5B6B] mb-3">
                   AI 個性化書單
                 </h2>
-                <p className="text-[#6B7C8C]">
-                  {new Date().toLocaleDateString()}
-                </p>
+                <p className="text-[#6B7C8C]">{currentDate}</p>
               </div>
 
               <div className="space-y-4">

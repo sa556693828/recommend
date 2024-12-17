@@ -25,16 +25,20 @@ if (!global.mongoose) {
   global.mongoose = cached;
 }
 
-async function dbConnect(): Promise<typeof mongoose> {
+async function dbConnect(collectionName: string): Promise<typeof mongoose> {
   if (cached.conn) {
     return cached.conn;
   }
 
   if (!cached.promise) {
     const opts = {
-      bufferCommands: false,
+      bufferCommands: true, // 改為 true
+      authSource: "admin", // 指定認證數據庫
+      retryWrites: true,
+      maxPoolSize: 10,
+      serverSelectionTimeoutMS: 5000,
     };
-    cached.promise = mongoose.connect(MONGODB_URI, opts);
+    cached.promise = mongoose.connect(MONGODB_URI + collectionName, opts);
   }
 
   try {

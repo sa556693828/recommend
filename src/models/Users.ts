@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import dbConnect from "@/lib/mongodb";
 
 // 定義用戶的 Schema
 const userSchema = new mongoose.Schema(
@@ -7,12 +8,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
-      index: true, // 添加索引以提高查詢效率
+      index: true,
     },
     male: {
       type: String,
       required: true,
-      enum: ["M", "F"], // 限制性別只能是 M 或 F
+      enum: ["M", "F"],
     },
     birth_data: {
       type: String,
@@ -31,10 +32,15 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
   },
-  { collection: "basic" }
+  { collection: "basic" } // 直接指定 collection 為 basic
 );
 
-// 防止重複定義 model
-const Users = mongoose.models.basic || mongoose.model("basic", userSchema);
-
-export default Users;
+export async function getUserModel() {
+  try {
+    await dbConnect("tazze_user");
+    return mongoose.models.basic || mongoose.model("basic", userSchema);
+  } catch (error) {
+    console.error("獲取用戶模型時出錯:", error);
+    throw error;
+  }
+}
