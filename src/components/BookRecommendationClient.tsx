@@ -469,7 +469,7 @@ const BookRecommendationClient = () => {
         currentChat={currentChat || []}
         chatHistory={chatHistory || []}
         isStreaming={isStreaming}
-        isLoading={recommendLoading || queryLoading}
+        isLoading={recommendLoading || queryLoading || chatHistory === null}
         handleQuery={handleQuery}
       />
       <div className="w-1/2 mx-auto relative bg-transparent rounded-lg flex flex-col gap-2 h-[calc(100vh-60px)]">
