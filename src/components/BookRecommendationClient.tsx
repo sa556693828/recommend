@@ -473,7 +473,7 @@ const BookRecommendationClient = () => {
         handleQuery={handleQuery}
       />
       <div className="w-1/2 mx-auto relative bg-transparent rounded-lg flex flex-col gap-2 h-[calc(100vh-60px)]">
-        <PersonaSelector />
+        <PersonaSelector isStreaming={isStreaming} />
         <BookList
           chatHistory={chatHistory || []}
           books={currentBook || []}
