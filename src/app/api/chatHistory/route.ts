@@ -1,18 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getHistoryModel } from "@/models/History";
-
+// import { getHistoryModel } from "@/models/History";
+import clientPromise from "@/lib/mongodb";
 export async function GET(req: NextRequest) {
   try {
-    const HistoryModel = await getHistoryModel();
+    // const HistoryModel = await getHistoryModel();
+    const client = await clientPromise;
+    const db = client.db("MarketingAgent");
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get("userId");
     const personaId = searchParams.get("personaId");
 
     if (userId && personaId) {
-      const userHistory = await HistoryModel.findOne(
-        { user_id: userId, persona_id: personaId },
-        { messages: 1 }
-      );
+      const userHistory = await db
+        .collection("User_History")
+        .findOne({ user_id: userId, persona_id: personaId });
       if (!userHistory) {
         return NextResponse.json({
           success: true,

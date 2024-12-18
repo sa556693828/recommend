@@ -1,14 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getPersonaModel } from "@/models/Persona";
+import clientPromise from "@/lib/mongodb";
 
 export async function GET(req: NextRequest) {
   try {
-    const PersonaModel = await getPersonaModel();
+    // const PersonaModel = await getPersonaModel();
+    const client = await clientPromise;
+    const db = client.db("MarketingAgent");
+
     const { searchParams } = new URL(req.url);
     const getAllPersona = searchParams.get("getAllPersona");
 
     if (getAllPersona) {
-      const personas = await PersonaModel.find({});
+      const personas = await db.collection("persona").find({}).toArray();
+
       return NextResponse.json({
         success: true,
         personas: personas,
