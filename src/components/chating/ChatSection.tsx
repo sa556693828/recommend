@@ -10,10 +10,10 @@ import LLMInput from "../Input";
 import PromptList from "./PromptList";
 
 interface ChatSectionProps {
+  isStreaming: boolean;
   currentChat?: Message[];
   chatHistory?: Message[];
-  isLoading?: boolean;
-  isStreaming?: boolean;
+  isLoading: boolean;
   handleQuery: (userId: string, inputValue: string, personaId: string) => void;
 }
 
@@ -118,7 +118,11 @@ const ChatSection = ({
               {message.content}
             </ReactMarkdown>
             {message.prompts && message.prompts.length > 0 && (
-              <PromptList prompts={message.prompts} handleQuery={handleQuery} />
+              <PromptList
+                isStreaming={isStreaming}
+                prompts={message.prompts}
+                handleQuery={handleQuery}
+              />
             )}
           </div>
         </div>
@@ -153,7 +157,11 @@ const ChatSection = ({
               {message.content}
             </ReactMarkdown>
             {message.prompts && message.prompts.length > 0 && (
-              <PromptList prompts={message.prompts} handleQuery={handleQuery} />
+              <PromptList
+                isStreaming={isStreaming || isLoading}
+                prompts={message.prompts}
+                handleQuery={handleQuery}
+              />
             )}
           </div>
         </div>

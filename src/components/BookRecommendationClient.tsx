@@ -15,8 +15,8 @@ const BookRecommendationClient = () => {
   const [recommendLoading, setRecommendLoading] = useState(false);
   const [queryLoading, setQueryLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
-  const [currentBook, setCurrentBook] = useState<BookData[] | null>(null);
-  const [currentChat, setCurrentChat] = useState<Message[] | null>([]);
+  const [currentBook, setCurrentBook] = useState<BookData[]>([]);
+  const [currentChat, setCurrentChat] = useState<Message[]>([]);
   // const [trendingBooks, setTrendingBooks] = useState<Books[]>([]);
   // const [personalizedBooks, setPersonalizedBooks] = useState<Books[]>([]);
   // const [bestSellerResponse, setBestSellerResponse] = useState();
@@ -436,18 +436,10 @@ const BookRecommendationClient = () => {
     },
     []
   );
-  const updateBookList = useCallback((book_id: string) => {
-    setCurrentBook((prev) => {
-      if (!prev) return null;
-      const filtered = prev.filter((book) => book.book_id !== book_id);
-      return filtered.length > 0 ? filtered : null;
-    });
-  }, []);
-
   useEffect(() => {
     if (userId && personaId) {
-      setCurrentBook(null);
-      setCurrentChat(null);
+      setCurrentBook([]);
+      setCurrentChat([]);
       fetchChatHistory(userId, personaId);
     }
   }, [userId, personaId]);
@@ -474,11 +466,7 @@ const BookRecommendationClient = () => {
       />
       <div className="w-1/2 mx-auto relative bg-transparent rounded-lg flex flex-col gap-2 h-[calc(100vh-60px)]">
         <PersonaSelector isStreaming={isStreaming} />
-        <BookList
-          chatHistory={chatHistory || []}
-          books={currentBook || []}
-          updateBookList={updateBookList}
-        />
+        <BookList chatHistory={chatHistory || []} books={currentBook || []} />
       </div>
     </div>
   );
