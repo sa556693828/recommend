@@ -5,14 +5,20 @@ import { BookData } from "@/types";
 import { BsFillHandThumbsDownFill } from "react-icons/bs";
 import Image from "next/image";
 import { FaBook } from "react-icons/fa";
+import { cn } from "@/lib/utils";
+import { usePersonaStore } from "@/store/usePersonaStore";
 
 interface BookRowProps {
   book: BookData;
   updateBookList: (book_id: string) => void;
+  className?: string;
 }
 
-const BookRow = ({ book, updateBookList }: BookRowProps) => {
+const BookRow = ({ book, updateBookList, className }: BookRowProps) => {
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+  const { personaId } = usePersonaStore();
+  const secondHand = personaId === "676071dd56a9919e381b531e" ? true : false;
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -29,13 +35,18 @@ const BookRow = ({ book, updateBookList }: BookRowProps) => {
     };
   }, [activeMenuId]);
   return (
-    <div className="flex flex-col gap-1 ">
+    <div className={cn("flex flex-col gap-1", className)}>
       <div className="flex px-3 py-4 items-center justify-between">
         <div
           className="flex items-center w-full justify-start cursor-pointer gap-4 hover:translate-x-2 transition-all duration-300"
           onClick={() => {
             if (book.book_url) {
-              window.open(book.book_url, "_blank");
+              window.open(
+                secondHand
+                  ? `https://www.taaze.tw/usedlist.html?oid=${book.book_id}`
+                  : book.book_url,
+                "_blank"
+              );
             }
           }}
         >
