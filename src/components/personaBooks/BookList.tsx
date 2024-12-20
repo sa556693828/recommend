@@ -12,7 +12,6 @@ interface BookListProps {
 const BookList = ({ chatHistory, books }: BookListProps) => {
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
   const [bookListDistinct, setBookListDistinct] = useState<BookData[]>([]);
-
   const updateBookList = useCallback((book_id: string) => {
     setBookListDistinct((prev) => {
       const filtered = prev.filter((book) => book.book_id !== book_id);
@@ -21,27 +20,22 @@ const BookList = ({ chatHistory, books }: BookListProps) => {
   }, []);
 
   useEffect(() => {
-    if (chatHistory.length > 0) {
-      const chatHistory_bookList_distinct = [...chatHistory]
-        .reverse()
-        .flatMap((message) => message.book_list || [])
-        .filter(
+    const chatHistory_bookList_distinct = [...chatHistory]
+      .reverse()
+      .flatMap((message) => message.book_list || [])
+      .filter(
+        (book, index, self) =>
+          index === self.findIndex((b) => b.book_id === book.book_id)
+      );
+    const books_distinct = books
+      ? books.filter(
           (book, index, self) =>
             index === self.findIndex((b) => b.book_id === book.book_id)
-        );
-      const books_distinct = books
-        ? books.filter(
-            (book, index, self) =>
-              index === self.findIndex((b) => b.book_id === book.book_id)
-          )
-        : [];
+        )
+      : [];
 
-      setBookListDistinct([
-        ...books_distinct,
-        ...chatHistory_bookList_distinct,
-      ]);
-    }
-  }, [chatHistory]);
+    setBookListDistinct([...books_distinct, ...chatHistory_bookList_distinct]);
+  }, [chatHistory, books]);
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (

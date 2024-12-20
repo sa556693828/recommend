@@ -4,7 +4,7 @@ import clientPromise from "@/lib/mongodb";
 export async function GET(req: NextRequest) {
   try {
     const client = await clientPromise;
-    const db = client.db("taaze_user");
+    const db = client.db("tazze_user");
 
     const { searchParams } = new URL(req.url);
     const getAllUserIds = searchParams.get("getAllUserIds");
@@ -89,7 +89,6 @@ export async function GET(req: NextRequest) {
           ...priorityUserIds,
           ...sortedUserIds.filter((id) => !priorityUserIds.includes(id)),
         ];
-        console.log("sortedUserIds", sortedUserIds);
         return NextResponse.json({
           success: true,
           users: finalUserIds,
