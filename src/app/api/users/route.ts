@@ -4,7 +4,7 @@ import clientPromise from "@/lib/mongodb";
 export async function GET(req: NextRequest) {
   try {
     const client = await clientPromise;
-    const db = client.db("MarketingAgent");
+    const db = client.db("taaze_user");
 
     const { searchParams } = new URL(req.url);
     const getAllUserIds = searchParams.get("getAllUserIds");
@@ -12,16 +12,13 @@ export async function GET(req: NextRequest) {
     if (getAllUserIds) {
       try {
         const users = await db
-          .collection("User_Graph")
+          .collection("basic")
           .find({})
-          .project({ "layer_1_data.cust_id": 1 })
+          .project({ user_id: 1 })
           .toArray();
 
-        const custIds = users
-          .map((user) => user.layer_1_data?.cust_id)
-          .filter(Boolean);
-
-        const sortedUserIds = custIds.sort();
+        const userIds = users.map((user) => user.user_id);
+        const sortedUserIds = userIds.sort();
         const priorityUserIds = [
           "yehxuanyow@gmail.com",
           "elizachi",
@@ -92,6 +89,7 @@ export async function GET(req: NextRequest) {
           ...priorityUserIds,
           ...sortedUserIds.filter((id) => !priorityUserIds.includes(id)),
         ];
+        console.log("sortedUserIds", sortedUserIds);
         return NextResponse.json({
           success: true,
           users: finalUserIds,
