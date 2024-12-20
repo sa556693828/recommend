@@ -13,12 +13,12 @@ interface BookRowProps {
   updateBookList: (book_id: string) => void;
   className?: string;
 }
-
+// https://www.taaze.tw/usedlist.html?oid=11100916170
+// https://www.taaze.tw/usedList.html?oid=11100916170
 const BookRow = ({ book, updateBookList, className }: BookRowProps) => {
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
   const { personaId } = usePersonaStore();
   const secondHand = personaId === "676071dd56a9919e381b531e" ? true : false;
-
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -43,7 +43,7 @@ const BookRow = ({ book, updateBookList, className }: BookRowProps) => {
             if (book.book_url) {
               window.open(
                 secondHand
-                  ? `https://www.taaze.tw/usedlist.html?oid=${book.book_id}`
+                  ? `https://www.taaze.tw/usedList.html?oid=${book.book_id}`
                   : book.book_url,
                 "_blank"
               );
