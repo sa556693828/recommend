@@ -11,15 +11,25 @@ interface PersonaState {
 export const usePersonaStore = create<PersonaState>((set) => ({
   personas: [],
   personaId: "",
-  setPersonaId: (id) => set({ personaId: id }),
+  setPersonaId: (id) => {
+    localStorage.setItem("personaId", id);
+    set({ personaId: id });
+  },
   fetchPersonas: async () => {
     try {
       const response = await fetch("/api/persona?getAllPersona=true"); // 替換成你的 API 端點
       const resData = await response.json();
-      set({
-        personas: resData.personas,
-        personaId: resData.personas.length > 0 ? resData.personas[0]._id : "",
-      });
+      if (localStorage.getItem("personaId")) {
+        set({
+          personas: resData.personas,
+          personaId: localStorage.getItem("personaId") || "",
+        });
+      } else {
+        set({
+          personas: resData.personas,
+          personaId: resData.personas.length > 0 ? resData.personas[0]._id : "",
+        });
+      }
     } catch (error) {
       console.error("Failed to fetch personas:", error);
     }
