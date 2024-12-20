@@ -106,7 +106,7 @@ const BookList = ({ chatHistory, books }: BookListProps) => {
     <div className="p-4 h-full bg-black overflow-y-auto rounded-lg">
       {bookListDistinct &&
         bookListDistinct.length > 0 &&
-        bookListDistinct.map((book, index) => (
+        bookListDistinct.map((book) => (
           <BookRow
             key={book.book_id}
             book={book}
