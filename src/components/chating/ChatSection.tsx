@@ -8,9 +8,7 @@ import { personaIconMap } from "@/constants/personaMapping";
 import Image from "next/image";
 import LLMInput from "../Input";
 import PromptList from "./PromptList";
-import { useChatHistoryStore } from "@/store/chatHistoryStore";
 import { TbTrash } from "react-icons/tb";
-import { useAuthStore } from "@/store/useAuthStore";
 
 interface ChatSectionProps {
   isStreaming: boolean;
@@ -30,7 +28,6 @@ const ChatSection = ({
   handleQuery,
 }: ChatSectionProps) => {
   const { personaId } = usePersonaStore();
-  const { userId } = useAuthStore();
   const personaIcon = personaIconMap[personaId];
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
