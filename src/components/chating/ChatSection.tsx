@@ -8,23 +8,29 @@ import { personaIconMap } from "@/constants/personaMapping";
 import Image from "next/image";
 import LLMInput from "../Input";
 import PromptList from "./PromptList";
+import { useChatHistoryStore } from "@/store/chatHistoryStore";
+import { TbTrash } from "react-icons/tb";
+import { useAuthStore } from "@/store/useAuthStore";
 
 interface ChatSectionProps {
   isStreaming: boolean;
   currentChat?: Message[];
   chatHistory?: Message[];
   isLoading: boolean;
+  handleDeleteChatHistory: () => void;
   handleQuery: (userId: string, inputValue: string, personaId: string) => void;
 }
 
 const ChatSection = ({
   currentChat,
+  handleDeleteChatHistory,
   chatHistory,
   isLoading,
   isStreaming,
   handleQuery,
 }: ChatSectionProps) => {
   const { personaId } = usePersonaStore();
+  const { userId } = useAuthStore();
   const personaIcon = personaIconMap[personaId];
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
@@ -88,6 +94,14 @@ const ChatSection = ({
       ref={chatContainerRef}
       className="w-1/2 mx-auto relative bg-[#FFFFFF] rounded-lg px-6 pt-6 pb-24 gap-8 flex flex-col h-full overflow-y-auto"
     >
+      <div className="sticky top-0 left-0 z-10 -mb-[44px]">
+        <div className="flex justify-start relative">
+          <TbTrash
+            className="w-4 h-4 cursor-pointer absolute -top-4 -left-4"
+            onClick={() => handleDeleteChatHistory()}
+          />
+        </div>
+      </div>
       {chatHistory?.map((message: Message, index: number) => (
         <div
           key={index}

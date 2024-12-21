@@ -11,7 +11,8 @@ import React, { useCallback, useEffect, useState } from "react";
 const BookRecommendationClient = () => {
   const { userId } = useAuthStore();
   const { personaId } = usePersonaStore();
-  const { chatHistory, fetchChatHistory } = useChatHistoryStore();
+  const { chatHistory, fetchChatHistory, deleteChatHistory } =
+    useChatHistoryStore();
   const [recommendLoading, setRecommendLoading] = useState(false);
   const [queryLoading, setQueryLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
@@ -443,8 +444,13 @@ const BookRecommendationClient = () => {
       fetchChatHistory(userId, personaId);
     }
   }, [userId, personaId]);
-
+  const handleDeleteChatHistory = () => {
+    deleteChatHistory(userId, personaId);
+    setCurrentChat([]);
+    setCurrentBook([]);
+  };
   useEffect(() => {
+    console.log("chatHistory", chatHistory);
     if (chatHistory && chatHistory.length === 0) {
       if (!userId || !personaId) return;
       handleStream(userId, personaId);
@@ -463,6 +469,7 @@ const BookRecommendationClient = () => {
         isStreaming={isStreaming}
         isLoading={recommendLoading || queryLoading || chatHistory === null}
         handleQuery={handleQuery}
+        handleDeleteChatHistory={handleDeleteChatHistory}
       />
       <div className="w-1/2 mx-auto relative bg-transparent rounded-lg flex flex-col gap-2 h-[calc(100vh-60px)]">
         <PersonaSelector isStreaming={isStreaming} />
