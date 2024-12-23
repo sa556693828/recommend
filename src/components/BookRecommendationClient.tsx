@@ -1,6 +1,6 @@
 "use client";
 import ChatSection from "@/components/chating/ChatSection";
-import BookList from "@/components/personaBooks/BookList";
+import AnimationBookList from "@/components/personaBooks/AnimationBookList";
 import PersonaSelector from "@/components/personaBooks/PersonaSelector";
 import { useChatHistoryStore } from "@/store/chatHistoryStore";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -473,7 +473,10 @@ const BookRecommendationClient = () => {
       />
       <div className="w-1/2 mx-auto relative bg-transparent rounded-lg flex flex-col gap-2 h-[calc(100vh-60px)]">
         <PersonaSelector isStreaming={isStreaming} />
-        <BookList chatHistory={chatHistory || []} books={currentBook || []} />
+        <AnimationBookList
+          chatHistory={chatHistory || []}
+          books={currentBook || []}
+        />
       </div>
     </div>
   );

@@ -13,13 +13,25 @@ export default {
         foreground: "var(--foreground)",
       },
       keyframes: {
-        "fade-in": {
-          "0%": { opacity: "0" },
-          "100%": { opacity: "1" },
+        "slide-in": {
+          "0%": {
+            opacity: "0",
+            transform: "translateY(20px) scale(0.95)",
+          },
+          "60%": {
+            transform: "translateY(-10px) scale(1.02)",
+          },
+          "100%": {
+            opacity: "1",
+            transform: "translateY(0) scale(1)",
+          },
         },
       },
       animation: {
-        "fade-in": "fade-in 6s ease-out",
+        "slide-in": "slide-in 3s cubic-bezier(0.23, 1, 0.32, 1) forwards",
+      },
+      transitionTimingFunction: {
+        "bounce-in": "cubic-bezier(0.23, 1, 0.32, 1)",
       },
     },
   },

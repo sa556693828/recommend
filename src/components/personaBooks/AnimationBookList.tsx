@@ -9,7 +9,7 @@ interface BookListProps {
   books: BookData[] | null;
 }
 
-const BookList = ({ chatHistory, books }: BookListProps) => {
+const AnimationBookList = ({ chatHistory, books }: BookListProps) => {
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
   const [bookListDistinct, setBookListDistinct] = useState<BookData[]>([]);
   const [newBookIds, setNewBookIds] = useState<Set<string>>(new Set());
@@ -32,60 +32,29 @@ const BookList = ({ chatHistory, books }: BookListProps) => {
         );
 
       if (books) {
-        const bookMap = new Map();
-
-        chatHistory_bookList_distinct.forEach((book) => {
-          if (!bookMap.has(book.book_id)) {
-            bookMap.set(book.book_id, book);
-          }
-        });
-
-        books.forEach((book) => {
-          bookMap.set(book.book_id, book);
-        });
-
-        const newBooksList = books.filter((book) => bookMap.has(book.book_id));
-
-        const remainingBooks = Array.from(bookMap.values()).filter(
-          (book) => !books.some((newBook) => newBook.book_id === book.book_id)
+        // 先處理 books 中的重複項，保持最新的位置
+        const distinctBooks = books.filter(
+          (book, index) =>
+            books.findIndex((b) => b.book_id === book.book_id) === index
         );
 
-        setBookListDistinct([...newBooksList, ...remainingBooks]);
+        // 過濾掉在 distinctBooks 中出現的聊天記錄書籍
+        const filteredChatHistory = chatHistory_bookList_distinct.filter(
+          (chatBook) =>
+            !distinctBooks.some((book) => book.book_id === chatBook.book_id)
+        );
+
+        // 找出新書和位置變化的書籍
+        // const currentBookIds = new Set(
+        //   bookListDistinct.map((book) => book.book_id)
+        // );
+        const newIds = new Set(distinctBooks.map((book) => book.book_id));
+
+        setNewBookIds(newIds);
+        setBookListDistinct([...distinctBooks, ...filteredChatHistory]);
       }
     }
   }, [chatHistory, books]);
-
-  useEffect(() => {
-    if (books) {
-      const previousBooksMap = new Map(
-        bookListDistinct.map((book, index) => [book.book_id, index])
-      );
-
-      const newBooksMap = new Map(
-        books.map((book, index) => [book.book_id, index])
-      );
-
-      const newIds = new Set(
-        books
-          .filter((book) => {
-            const previousIndex = previousBooksMap.get(book.book_id);
-            return (
-              previousIndex === undefined ||
-              previousIndex !== newBooksMap.get(book.book_id)
-            );
-          })
-          .map((book) => book.book_id)
-      );
-      console.log("newIds", newIds);
-      setNewBookIds(newIds);
-
-      const timer = setTimeout(() => {
-        setNewBookIds(new Set());
-      }, 5000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [books, bookListDistinct]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -111,11 +80,11 @@ const BookList = ({ chatHistory, books }: BookListProps) => {
             key={book.book_id}
             book={book}
             updateBookList={updateBookList}
-            className={newBookIds.has(book.book_id) ? "animate-fade-in" : ""}
+            className={newBookIds.has(book.book_id) ? "animate-slide-in" : ""}
           />
         ))}
     </div>
   );
 };
 
-export default BookList;
+export default AnimationBookList;

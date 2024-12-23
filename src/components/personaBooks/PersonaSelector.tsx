@@ -38,6 +38,7 @@ const PersonaSelector = ({ isStreaming }: { isStreaming: boolean }) => {
                   setModelOpen(true);
                   setModelPersonaId(icon);
                 }}
+                unoptimized
               />
             ))}
           </div>
@@ -55,21 +56,24 @@ const PersonaSelector = ({ isStreaming }: { isStreaming: boolean }) => {
       </div>
       {modelOpen && (
         <div
-          onClick={() => setModelOpen(false)} // 點擊背景關閉
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          onClick={() => setModelOpen(false)}
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto"
         >
           <div
-            onClick={(e) => e.stopPropagation()} // 防止點擊內容區域時關閉
-            className="bg-white flex flex-col rounded-lg max-w-md w-full"
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white flex flex-col rounded-lg max-w-md w-full max-h-[90vh] my-auto"
           >
-            <Image
-              src={personaIconMap[modelPersonaId]}
-              alt="persona"
-              width={1000}
-              height={1000}
-              className="w-full h-full rounded-t-lg"
-            />
-            <div className="flex flex-col gap-4 px-4 py-8">
+            <div className="relative flex-shrink-0">
+              <Image
+                src={personaIconMap[modelPersonaId]}
+                alt="persona"
+                width={1000}
+                height={1000}
+                className="w-full rounded-t-lg object-cover max-h-[45vh]"
+                unoptimized
+              />
+            </div>
+            <div className="flex flex-col gap-4 px-4 py-8 overflow-y-auto">
               <h3 className="text-2xl font-bold">
                 {
                   personas.find((persona) => persona._id === modelPersonaId)

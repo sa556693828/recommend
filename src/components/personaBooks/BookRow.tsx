@@ -57,6 +57,7 @@ const BookRow = ({ book, updateBookList, className }: BookRowProps) => {
               className="w-12 h-16"
               width={44}
               height={60}
+              unoptimized
             />
           ) : (
             <div className="w-12 h-16 bg-transparent flex items-center justify-center">
