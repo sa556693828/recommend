@@ -26,17 +26,21 @@ const AnimationBookList = ({ chatHistory, books }: BookListProps) => {
       const chatHistory_bookList_distinct = [...chatHistory]
         .reverse()
         .flatMap((message) => message.book_list || [])
+        .filter((book) => book.book_id.startsWith("111"))
         .filter(
           (book, index, self) =>
             index === self.findIndex((b) => b.book_id === book.book_id)
         );
 
       if (books) {
-        // 先處理 books 中的重複項，保持最新的位置
-        const distinctBooks = books.filter(
-          (book, index) =>
-            books.findIndex((b) => b.book_id === book.book_id) === index
-        );
+        // 先過濾掉不是 111 開頭的書籍，再處理重複項
+        const distinctBooks = books
+          .filter((book) => book.book_id.startsWith("111"))
+          .filter(
+            (book, index, filteredBooks) =>
+              filteredBooks.findIndex((b) => b.book_id === book.book_id) ===
+              index
+          );
 
         // 過濾掉在 distinctBooks 中出現的聊天記錄書籍
         const filteredChatHistory = chatHistory_bookList_distinct.filter(
@@ -44,10 +48,6 @@ const AnimationBookList = ({ chatHistory, books }: BookListProps) => {
             !distinctBooks.some((book) => book.book_id === chatBook.book_id)
         );
 
-        // 找出新書和位置變化的書籍
-        // const currentBookIds = new Set(
-        //   bookListDistinct.map((book) => book.book_id)
-        // );
         const newIds = new Set(distinctBooks.map((book) => book.book_id));
 
         setNewBookIds(newIds);
