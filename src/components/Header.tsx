@@ -18,7 +18,7 @@ const Header = () => {
           {/* Logo/網站名稱 */}
           <div className="flex-shrink-0">
             <Link href="/" className="text-black text-base font-medium">
-              /book-recommendation-agent
+              /book-recommendation-agent-v0.2.1
             </Link>
           </div>
 

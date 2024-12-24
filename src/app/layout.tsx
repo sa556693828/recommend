@@ -16,8 +16,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Recommendation Agent",
-  description: "Recommendation Agent",
+  title: "Recommend Agent v0.2.1",
+  description: "Recommend Agent v0.2.1",
   icons: {
     icon: "/favicon.ico",
   },
