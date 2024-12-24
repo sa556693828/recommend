@@ -38,7 +38,6 @@ const PersonaSelector = ({ isStreaming }: { isStreaming: boolean }) => {
                   setModelOpen(true);
                   setModelPersonaId(icon);
                 }}
-                unoptimized
               />
             ))}
           </div>
@@ -70,7 +69,6 @@ const PersonaSelector = ({ isStreaming }: { isStreaming: boolean }) => {
                 width={1000}
                 height={1000}
                 className="w-full rounded-t-lg object-cover max-h-[45vh]"
-                unoptimized
               />
             </div>
             <div className="flex flex-col gap-4 px-4 py-8 overflow-y-auto">

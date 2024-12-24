@@ -114,7 +114,6 @@ const ChatSection = ({
                 className="w-10 h-10 rounded-full"
                 width={40}
                 height={40}
-                unoptimized
               />
             ) : (
               <div className="w-10 h-10 rounded-full flex-shrink-0 border border-amber-700"></div>
@@ -154,7 +153,6 @@ const ChatSection = ({
                 className="w-10 h-10 rounded-full"
                 width={40}
                 height={40}
-                unoptimized
               />
             ) : (
               <div className="w-10 h-10 rounded-full flex-shrink-0 border border-amber-700"></div>
